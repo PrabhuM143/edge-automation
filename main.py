@@ -1,33 +1,80 @@
 from selenium import webdriver
-from selenium.webdriver.edge.service import Service as EdgeService
-from selenium.webdriver.edge.options import Options as EdgeOptions
+from selenium.webdriver.edge.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import time
 
-# Set the correct path to the Edge WebDriver
-edge_driver_path = 'C:/path/to/your/edgedriver/msedgedriver.exe'
+# Replace 'path_to_your_webdriver' with the actual path to your Edge WebDriver
+webdriver_path = "C:\Program Files (x86)\Microsoft\Edge\Application\msedgedriver.exe"
 
-# Initialize the Edge WebDriver with the specified options
-edge_service = EdgeService(executable_path=edge_driver_path)
-edge_options = EdgeOptions()
+# Initialize Edge WebDriver
+try:
+    service = Service(webdriver_path)
+    driver = webdriver.Edge(service=service)
+except Exception as e:
+    print(f"Failed to start WebDriver: {e}")
+    exit(1)
 
-# Initialize the Edge WebDriver
-driver = webdriver.Edge(service=edge_service, options=edge_options)
+# List of custom 50 searches
+search_queries = [
+    "Andhra Pradesh",
+    "Arunachal Pradesh",
+    "Assam",
+    "Bihar",
+    "Chhattisgarh",
+    "Goa",
+    "Gujarat",
+    "Haryana",
+    "Himachal Pradesh",
+    "Jharkhand",
+    "Karnataka",
+    "Kerala",
+    "Madhya Pradesh",
+    "Maharashtra",
+    "Manipur",
+    "Meghalaya",
+    "Mizoram",
+    "Nagaland",
+    "Odisha",
+    "Punjab",
+    "Rajasthan",
+    "Sikkim",
+    "Tamil Nadu",
+    "Telangana",
+    "Tripura",
+    "Uttar Pradesh",
+    "Uttarakhand",
+    "West Bengal",
+    "Andaman and Nicobar Islands",
+    "Chandigarh"
+]
 
-# Open Edge and navigate to Bing
-driver.get("https://www.bing.com")
 
-# Find the search box element
-search_box = driver.find_element(By.NAME, "q")
+# Open Edge browser and perform searches
+try:
+    for query in search_queries:
+        # Open Bing search
+        driver.get("https://www.bing.com")
+        time.sleep(2)  # Wait for the page to load
 
-# Perform the search
-search_query = "OpenAI ChatGPT"
-search_box.send_keys(search_query)
-search_box.send_keys(Keys.RETURN)
+        # Find the search box and enter the search query
+        search_box = driver.find_element(By.NAME, "q")
+        search_box.send_keys(query)
+        search_box.send_keys(Keys.RETURN)
+        time.sleep(2)  # Wait for search results to load
 
-# Wait for a few seconds to see the results
-time.sleep(5)
+        # Open the first search result link
+        first_result = driver.find_element(By.CSS_SELECTOR, "li.b_algo h2 a")
+        first_result.click()
+        time.sleep(3)  # Keep the page open for 3 seconds
 
-# Close the browser
-driver.quit()
+        # Check if a new tab was opened
+        if len(driver.window_handles) > 1:
+            driver.close()  # Close the new tab
+            driver.switch_to.window(driver.window_handles[0])  # Switch back to the original tab
+
+except Exception as e:
+    print(f"An error occurred: {e}")
+finally:
+    # Close the browser
+    driver.quit()
